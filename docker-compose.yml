@@ -1,0 +1,28 @@
+
+
+services:
+  backend:
+    build:
+      context: . 
+      dockerfile: backend/Dockerfile 
+    ports:
+      - "5000:5000"
+    environment:
+      API_KEY: "your_super_secret_email_guard_key_123" 
+     
+    volumes:
+      - ./ai/email_guard_model.joblib:/app/ai/email_guard_model.joblib
+      - ./data:/app/data 
+    restart: unless-stopped 
+
+  frontend:
+    build:
+      context: ./frontend/web 
+      dockerfile: Dockerfile 
+    ports:
+      - "3000:80" 
+    environment:
+      REACT_APP_API_KEY: "your_super_secret_email_guard_key_123" 
+    depends_on:
+      - backend 
+    restart: unless-stopped

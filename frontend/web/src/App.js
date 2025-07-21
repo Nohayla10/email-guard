@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import axios from 'axios';
+import axios from 'axios'; // Ensure axios is installed: npm install axios
 
 function App() {
-  const [emailText, setEmailText] = useState('');
-  const [scanResult, setScanResult] = useState(null); 
+const [emailText, setEmailText] = useState('');
+  const [scanResult, setScanResult] = useState(null);
   const [scanHistory, setScanHistory] = useState([]); 
   const [loadingScan, setLoadingScan] = useState(false);
-  const [loadingHistory, setLoadingHistory] = useState(false); 
+  const [loadingHistory, setLoadingHistory] = useState(false);
   const [error, setError] = useState(null);
 
-  const API_BASE_URL = 'http://127.0.0.1:5000'; 
-  const API_KEY = 'super_secret_email_guard_key_123'; 
+  
+  const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+  const API_KEY = process.env.REACT_APP_API_KEY || "your_super_secret_email_guard_key_123" ; 
 
   // Function to fetch scan history
-  const fetchScanHistory = async () => {
+   const fetchScanHistory = async () => {
     setLoadingHistory(true);
     setError(null); 
     try {
@@ -25,8 +26,8 @@ function App() {
             'Authorization': `Bearer ${API_KEY}`
           }
         }
-      );
-      setScanHistory(response.data.history);
+      );     
+      setScanHistory(response.data.history); 
     } catch (err) {
       console.error("Error fetching scan history:", err);
       if (err.response) {
@@ -41,18 +42,19 @@ function App() {
     }
   };
 
- 
+
   useEffect(() => {
     fetchScanHistory();
   }, []); 
   const handleScanEmail = async () => {
     setLoadingScan(true);
-    setScanResult(null); 
-    setError(null);
+    setScanResult(null);
+    setError(null); 
 
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/scan`, // Use base URL + endpoint
+        
+        `${API_BASE_URL}/scan`,
         { email_text: emailText },
         {
           headers: {
@@ -62,7 +64,7 @@ function App() {
         }
       );
       setScanResult(response.data);
-      
+
       fetchScanHistory();
     } catch (err) {
       console.error("Error scanning email:", err);
@@ -71,6 +73,7 @@ function App() {
       } else if (err.request) {
         setError('No response from API. Is the backend running?');
       } else {
+        
         setError('Error setting up the request.');
       }
     } finally {
@@ -126,13 +129,15 @@ function App() {
           </div>
           {scanHistory.length === 0 && !loadingHistory && <p>No scan history yet. Scan an email to see results here!</p>}
           {loadingHistory && <p>Loading history...</p>}
-          
+
           <div className="history-list">
+            {/* Map over scanHistory to display each entry */}
             {scanHistory.map((entry, index) => (
               <div key={index} className="history-item">
                 <p><strong>Type:</strong> <span className={`classification-${entry.classification}`}>{entry.classification}</span></p>
                 <p><strong>Confidence:</strong> {(entry.confidence * 100).toFixed(2)}%</p>
-                <p><strong>Snippet:</strong> {entry.text_snippet}</p>
+                {/* Use 'input' from backend, shorten it, or create 'text_snippet' in backend */}
+                <p><strong>Snippet:</strong> {entry.input ? entry.input.substring(0, 100) + (entry.input.length > 100 ? '...' : '') : 'N/A'}</p>
                 <p className="timestamp">{entry.timestamp ? new Date(entry.timestamp).toLocaleString() : 'N/A'}</p>
               </div>
             ))}
