@@ -45,8 +45,62 @@ python -c "import nltk; nltk.download('stopwords'); nltk.download('wordnet')"
 
 
 ### 5. Train the AI Model
-# The machine learning model needs to be trained and saved before you can use the CLI or API.
-
+# The machine learning model needs to be trained and saved before you can use the CLI or API.n
 # From the project's root directory, run:
 python ai/email_guard_model.py
 
+
+## Usage
+
+### Command Line Interface (CLI)
+```Scan an email directly from your terminal:
+
+python email_guard.py "Your Amazon order has shipped. Track it here: [amazon.com/track/123](https://amazon.com/track/123)"
+
+``` The output will be a JSON-formatted string with classification, confidence, and explanation.
+
+### RESTful API
+#### 1 . Run the Backend Server Locally: 
+python backend/app.py
+``` The server will typically run on http://127.0.0.1:5000/ 
+#### 2 . API Endpoints: 
+/ (GET): Health check.
+
+/scan (POST): Classifies email text. Requires email_text in JSON body and Authorization: Bearer YOUR_API_KEY header (if API_KEY is set).
+
+/history (GET): Retrieves recent scan history. Requires Authorization: Bearer YOUR_API_KEY header (if API_KEY is set).
+
+## Project Structure
+email_guard/
+├── ai/
+│   ├── __init__.py
+│   ├── email_guard.py            # Defines the EmailGuardAI class and preprocessing logic
+│   └── email_guard_model.py      # Script to train and save the AI model
+│   └── email_guard_model.joblib  # Trained model file (generated after training)
+├── backend/
+│   ├── __init__.py
+│   └── app.py                    # Flask API application
+├── data/
+│   ├── spam.csv
+│   ├── phishing_email_dataset.csv
+│   └── SMSSpamCollection
+├── docs/
+│   ├── architecture.png          # Generated architecture diagram image
+│   └── README.md                 # This file
+│   └── security_notes.md         # Document detailing security considerations
+├── frontend/        # frontend application
+│   └── web/                      # web frontend (e.g., React app)
+│       ├── public/
+│       ├── src/
+│       └── package.json
+│       └── ... (other frontend files)
+├── tests/
+│   ├── __init__.py
+│   └── test_email_guard.py       # Unit tests for the entire project
+├── .env                          # Environment variables (e.g., API_KEY) 
+├── email_guard.py                # Main CLI tool for email classification
+├── requirements.txt              # Python project dependencies
+└── reflection.md                 # My reflection on the project journey
+
+## Testing 
+python -m unittest tests/test_email_guard.py
