@@ -107,4 +107,19 @@ def get_history():
     return jsonify({"history": SCAN_HISTORY}), 200
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+   # Use Gunicorn in production, but provide a way to run directly for local testing
+    if os.getenv("FLASK_ENV") == "production":
+
+        from gunicorn.app.wsgiapp import WSGIApplication
+        class FlaskApplication(WSGIApplication):
+            def __init__(self, app, options=None):
+                self.application = app
+                super().__init__('%s:%s' % ('app', 'app'), options)
+        FlaskApplication(app, options={
+            'bind': '0.0.0.0:' + os.getenv("PORT", "5000"),
+            'workers': 4, 
+            'loglevel': 'info'
+        }).run()
+    else:
+        port = int(os.getenv("PORT", 5000))
+        app.run(debug=True, host='0.0.0.0', port=port)

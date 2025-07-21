@@ -7,3 +7,4 @@ flask-cors
 nltk
 joblib
 numpy
+gunicorn 
