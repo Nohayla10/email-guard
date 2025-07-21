@@ -30,3 +30,23 @@ To get EmailGuard up and running on your local machine, follow these steps.
 ```bash
 git clone https://github.com/Nohayla10/email-guard.git
 cd email_guard
+
+###2. Create and Activate a Virtual Environment
+python -m venv venv
+# On Windows: .\venv\Scripts\activate
+# On macOS/Linux: source venv/bin/activate
+
+### 3. Install Dependencies
+pip install -r requirements.txt
+
+### 4. Download NLTK Data
+# The project uses NLTK for text preprocessing. This step is often handled automatically on first run, but you can manually ensure the data is present:
+python -c "import nltk; nltk.download('stopwords'); nltk.download('wordnet')"
+
+
+### 5. Train the AI Model
+# The machine learning model needs to be trained and saved before you can use the CLI or API.
+
+# From the project's root directory, run:
+python ai/email_guard_model.py
+
