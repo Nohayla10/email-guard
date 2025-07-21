@@ -1,0 +1,193 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f0f2f5;
+  color: #333;
+}
+
+.App {
+  text-align: center;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.App-header {
+  background-image: linear-gradient(to right, #4facfe, #00f2fe);
+  padding: 40px 20px;
+  color: white;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.App-header h1 {
+  font-size: 2.8em;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+.App-header .subtitle {
+  font-size: 1.2em;
+  opacity: 0.9;
+}
+
+main {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+}
+
+@media (min-width: 992px) {
+  main {
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: auto auto; 
+    grid-template-areas:
+      "input-area history-area"
+      "result-area history-area"
+      "error-area history-area"; }
+
+  .input-section { grid-area: input-area; }
+  .result-section { grid-area: result-area; }
+  .error-message { grid-area: error-area; }
+  .history-section { grid-area: history-area; }
+}
+
+
+.card {
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  text-align: left;
+}
+
+.card h2 {
+  color: #2c3e50;
+  margin-top: 0;
+  margin-bottom: 25px;
+  font-size: 1.8em;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 10px;
+}
+
+textarea {
+  width: calc(100% - 20px); /* Adjust for padding */
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  font-size: 1em;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 150px;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  min-width: 150px; /* Ensures consistent button size */
+}
+
+button:hover:not(:disabled) {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.result-section p, .history-item p {
+  margin-bottom: 8px;
+  font-size: 1em;
+  color: #555;
+}
+
+.result-section strong, .history-item strong {
+  color: #333;
+}
+
+.classification-legit {
+  color: #28a745; /* Green */
+  font-weight: bold;
+}
+
+.classification-spam {
+  color: #ffc107; /* Orange */
+  font-weight: bold;
+}
+
+.classification-phishing {
+  color: #dc3545; /* Red */
+  font-weight: bold;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+/* History Section Specific Styles */
+.history-section {
+  max-height: 600px; /* Limit height of history section */
+  overflow-y: auto; /* Enable scrolling if content overflows */
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.history-header h2 {
+  margin: 0; /* Override default h2 margin for flex alignment */
+  border-bottom: none; /* Remove border from the h2 itself */
+  padding-bottom: 0;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.history-item {
+  border: 1px solid #eee;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #fdfdff;
+  transition: background-color 0.2s ease;
+}
+
+.history-item:hover {
+  background-color: #f0f0f5;
+}
+
+.history-item p {
+  margin: 0; /* Remove default paragraph margin */
+}
+
+.history-item .timestamp {
+  font-size: 0.85em;
+  color: #888;
+  margin-top: 5px;
+}
