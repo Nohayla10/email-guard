@@ -6,8 +6,7 @@ services:
     ports:
       - "5000:5000"
     environment:
-      API_KEY: "your_super_secret_email_guard_key_123" # Ensure this matches frontend
-    # NO VOLUMES SECTION HERE FOR THE MODEL OR AI FOLDER!
+      API_KEY: "your_super_secret_email_guard_key_123"
     restart: unless-stopped
 
   frontend:

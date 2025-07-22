@@ -176,7 +176,7 @@ def train_and_save_model():
     print(f"Recall (weighted): {recall:.4f}")
     print(f"F1-Score (weighted): {f1:.4f}")
 
-    model_dir = 'email_guard_sdk/model' # <--- THIS IS THE TARGET DIRECTORY
+    model_dir = 'email_guard_sdk/model' 
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)
     model_path = os.path.join(model_dir, 'email_guard_model.joblib')

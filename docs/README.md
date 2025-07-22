@@ -1,106 +1,78 @@
-# EmailGuard: AI-Powered Spam & Phishing Detection Toolkit
+# Smart Email Guardian: AI-Powered Spam & Phishing Detection Toolkit
 
 ![EmailGuard Architecture Diagram](docs/architecture.png)
 
 ## Overview
 
-EmailGuard is a comprehensive toolkit designed to classify emails as "legitimate," "spam," or "phishing" using a machine learning model. It offers a flexible solution with both a command-line interface (CLI) for quick, on-demand scanning and a robust Flask-based RESTful API for seamless integration into larger applications or services.
+EmailGuard is a comprehensive toolkit designed to classify emails as "legitimate," "spam," or "phishing" using a machine learning model. It aims to enhance digital security by providing a robust and accessible solution for identifying malicious and unwanted email content. It offers a flexible solution with both a command-line interface (CLI) for quick, on-demand scanning and a robust Flask-based RESTful API for seamless integration into larger applications or services.
 
-Built with `scikit-learn` and `Flask`, EmailGuard aims to provide a reliable first line of defense against unwanted and malicious emails by leveraging natural language processing and machine learning techniques.
+Built with `scikit-learn` and `Flask`, and packaged as a reusable Python SDK, EmailGuard aims to provide a reliable first line of defense against unwanted and malicious emails by leveraging natural language processing and machine learning techniques.
 
 ## Features
 
-* **Intelligent Classification:** Uses a trained machine learning model to accurately categorize emails.
-* **Dual Interface:** Access functionality via a simple command-line tool or a RESTful API.
+* **Intelligent Classification:** Uses a trained machine learning model to accurately categorize emails (Phishing, Spam, Legit).
+* **Confidence Score:** Provides a confidence level for each classification.
+* **Explanation Generation:** Offers a basic explanation for the classification.
+* **Reusable Python SDK:** Core AI logic is packaged as an installable Python library (`email-guard-sdk`).
+* **Dual Interface:** Access functionality via a simple command-line tool (for developers/local use) or a full-fledged web application with a RESTful API (for end-users and integration).
+* **Dockerized Deployment:** Full stack (backend and frontend) can be run as isolated containers using Docker Compose.
 * **Robust Text Preprocessing:** Handles noisy email data by cleaning, normalizing, and transforming text for optimal model performance.
-* **Comprehensive Documentation:** Detailed guides for setup, usage, and internal architecture.
-* **Security Considerations:** Built with an awareness of security best practices, including API key authentication.
+* **Security Considerations:** Built with an awareness of security best practices, including API key authentication for the backend.
+* **Scan History UI:** Frontend displays a history of recent email scans (in-memory on backend, resets on backend restart/redeploy).
 
 ## Live Demo
 
-* **Frontend (Web App):** [YOUR_DEPLOYED_FRONTEND_URL_HERE] (e.g., Vercel URL)
-* **Backend (API Base URL):** [YOUR_DEPLOYED_BACKEND_URL_HERE] (e.g., Render/Railway URL)
+Experience the Email Guard AI Scanner live!
 
-## Getting Started
+* **Frontend (Web App):** [https://email-guard-4ns4xkit6-nohayla10s-projects.vercel.app/]
+* **Backend (API Base URL):** [https://https://email-guard-production.up.railway.app/]
 
-To get EmailGuard up and running on your local machine, follow these steps.
+## Screenshots
+
+Showcase your application in action:
+
+![Screenshot 1: Main Scan Page](docs/screenshot-main-page.png)
+
+![Screenshot 2: Scan Result](docs/screenshot-result.png)
+
+![Screenshot 3: History View](docs/screenshot-history.png)
+
+## Technologies Used
+
+**Frontend:**
+* React.js
+* axios (for API requests)
+* HTML/CSS
+
+**Backend:**
+* Python 3
+* Flask (Web Framework)
+* Gunicorn (WSGI HTTP Server)
+* Flask-CORS (for Cross-Origin Resource Sharing)
+* scikit-learn (Machine Learning Library)
+* NumPy, Pandas (Data processing)
+* NLTK (Natural Language Toolkit for text preprocessing)
+* joblib (for model persistence)
+
+**Deployment:**
+* Vercel (for Frontend)
+* Railway.app (for Backend)
+* Docker (for Backend Containerization)
+* Git / GitHub (Version Control)
+
+## Getting Started (Local Development)
+
+To get EmailGuard up and running on your local machine, you have two primary options: using Docker Compose (recommended for full stack) or running components individually.
+
+### Prerequisites
+
+* **Node.js** (LTS version recommended) & **npm** (or yarn)
+* **Python 3.8+** & **pip**
+* **Git**
+* **Docker Desktop** (for Option 1)
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/Nohayla10/email-guard.git
-cd email_guard
-
-###2. Create and Activate a Virtual Environment
-python -m venv venv
-# On Windows: .\venv\Scripts\activate
-# On macOS/Linux: source venv/bin/activate
-
-### 3. Install Dependencies
-pip install -r requirements.txt
-
-### 4. Download NLTK Data
-# The project uses NLTK for text preprocessing. This step is often handled automatically on first run, but you can manually ensure the data is present:
-python -c "import nltk; nltk.download('stopwords'); nltk.download('wordnet')"
-
-
-### 5. Train the AI Model
-# The machine learning model needs to be trained and saved before you can use the CLI or API.n
-# From the project's root directory, run:
-python ai/email_guard_model.py
-
-
-## Usage
-
-### Command Line Interface (CLI)
-```Scan an email directly from your terminal:
-
-python email_guard.py "Your Amazon order has shipped. Track it here: [amazon.com/track/123](https://amazon.com/track/123)"
-
-``` The output will be a JSON-formatted string with classification, confidence, and explanation.
-
-### RESTful API
-#### 1 . Run the Backend Server Locally: 
-python backend/app.py
-``` The server will typically run on http://127.0.0.1:5000/ 
-#### 2 . API Endpoints: 
-/ (GET): Health check.
-
-/scan (POST): Classifies email text. Requires email_text in JSON body and Authorization: Bearer YOUR_API_KEY header (if API_KEY is set).
-
-/history (GET): Retrieves recent scan history. Requires Authorization: Bearer YOUR_API_KEY header (if API_KEY is set).
-
-## Project Structure
-email_guard/
-├── ai/
-│   ├── __init__.py
-│   ├── email_guard.py            # Defines the EmailGuardAI class and preprocessing logic
-│   └── email_guard_model.py      # Script to train and save the AI model
-│   └── email_guard_model.joblib  # Trained model file (generated after training)
-├── backend/
-│   ├── __init__.py
-│   └── app.py                    # Flask API application
-├── data/
-│   ├── spam.csv
-│   ├── phishing_email_dataset.csv
-│   └── SMSSpamCollection
-├── docs/
-│   ├── architecture.png          # Generated architecture diagram image
-│   └── README.md                 # This file
-│   └── security_notes.md         # Document detailing security considerations
-├── frontend/        # frontend application
-│   └── web/                      # web frontend (e.g., React app)
-│       ├── public/
-│       ├── src/
-│       └── package.json
-│       └── ... (other frontend files)
-├── tests/
-│   ├── __init__.py
-│   └── test_email_guard.py       # Unit tests for the entire project
-├── .env                          # Environment variables (e.g., API_KEY) 
-├── email_guard.py                # Main CLI tool for email classification
-├── requirements.txt              # Python project dependencies
-└── reflection.md                 # My reflection on the project journey
-
-## Testing 
-python -m unittest tests/test_email_guard.py
+git clone [https://github.com/Nohayla10/email_guard.git] 
+cd email_guard 

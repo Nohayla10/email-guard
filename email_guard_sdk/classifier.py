@@ -1,4 +1,3 @@
-# email_guard_sdk/classifier.py
 import joblib
 import os
 import sys
@@ -7,7 +6,7 @@ import re
 import string
 import nltk
 from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer # Make sure this is imported
+from nltk.stem import WordNetLemmatizer
 from datetime import datetime
 import warnings
 import importlib.resources as pkg_resources
@@ -24,7 +23,7 @@ except LookupError:
     nltk.download('wordnet', quiet=True)
 
 stop_words = set(stopwords.words('english'))
-lemmatizer = WordNetLemmatizer() # This is your lemmatizer object
+lemmatizer = WordNetLemmatizer()
 
 def preprocess_text(text):
     if not isinstance(text, str):
@@ -33,9 +32,7 @@ def preprocess_text(text):
     text = re.sub(f"[{re.escape(string.punctuation)}]", "", text)
     text = re.sub(r'\d+', '', text)
     tokens = text.split()
-    # --- FIX IS HERE ---
-    tokens = [lemmatizer.lemmatize(word) for word in tokens if word not in stop_words] # Call the method on the object
-    # --- END FIX ---
+    tokens = [lemmatizer.lemmatize(word) for word in tokens if word not in stop_words]
     return " ".join(tokens)
 
 class EmailGuardAI:
@@ -69,7 +66,6 @@ class EmailGuardAI:
                 raise FileNotFoundError(f"Failed to load model from SDK package or Docker path: {e}. Ensure 'email_guard_sdk/model/email_guard_model.joblib' exists within the installed package or at {docker_model_path}.")
 
         self.classes = self._model.classes_
-
 
     def classify_email(self, email_text: str):
         if not isinstance(email_text, str) or not email_text.strip():
@@ -117,6 +113,6 @@ class EmailGuardAI:
         if confidence < 0.7:
             base_explanation += f" (Confidence: {confidence*100:.2f}% is moderate, further manual review is recommended.)"
         elif confidence < 0.5:
-             base_explanation += f" (Confidence: {confidence*100:.2f}% is low, the classification might be uncertain.)"
+            base_explanation += f" (Confidence: {confidence*100:.2f}% is low, the classification might be uncertain.)"
 
         return base_explanation
