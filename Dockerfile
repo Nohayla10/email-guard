@@ -62,4 +62,4 @@ EXPOSE 5000
 # It binds to all network interfaces (0.0.0.0) and uses the $PORT environment variable
 # provided by the hosting platform (e.g., Railway, Render), defaulting to 5000 if not set.
 # 'backend.app:app' refers to the 'app' object within the 'app.py' file inside the 'backend' directory.
-CMD ["gunicorn", "--bind", "0.0.0.0:${PORT:-5000}", "backend.app:app"]
+CMD gunicorn --bind 0.0.0.0:${PORT:-5000} backend.app:app
