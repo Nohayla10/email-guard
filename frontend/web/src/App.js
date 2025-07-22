@@ -1,23 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import axios from 'axios'; // Ensure axios is installed: npm install axios
+import axios from 'axios';
 
 function App() {
-const [emailText, setEmailText] = useState('');
+  const [emailText, setEmailText] = useState('');
   const [scanResult, setScanResult] = useState(null);
-  const [scanHistory, setScanHistory] = useState([]); 
+  const [scanHistory, setScanHistory] = useState([]);
   const [loadingScan, setLoadingScan] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [error, setError] = useState(null);
 
-  
-  const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
-  const API_KEY = process.env.REACT_APP_API_KEY || "your_super_secret_email_guard_key_123" ; 
+  const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'https://email-guard-production.up.railway.app';
+  const API_KEY = process.env.REACT_APP_API_KEY || "your_super_secret_email_guard_key_123";
 
-  // Function to fetch scan history
-   const fetchScanHistory = async () => {
+  const fetchScanHistory = async () => {
     setLoadingHistory(true);
-    setError(null); 
+    setError(null);
     try {
       const response = await axios.get(
         `${API_BASE_URL}/history`,
@@ -26,8 +24,8 @@ const [emailText, setEmailText] = useState('');
             'Authorization': `Bearer ${API_KEY}`
           }
         }
-      );     
-      setScanHistory(response.data.history); 
+      );
+      setScanHistory(response.data.history);
     } catch (err) {
       console.error("Error fetching scan history:", err);
       if (err.response) {
@@ -42,18 +40,17 @@ const [emailText, setEmailText] = useState('');
     }
   };
 
-
   useEffect(() => {
     fetchScanHistory();
-  }, []); 
+  }, []);
+
   const handleScanEmail = async () => {
     setLoadingScan(true);
     setScanResult(null);
-    setError(null); 
+    setError(null);
 
     try {
       const response = await axios.post(
-        
         `${API_BASE_URL}/scan`,
         { email_text: emailText },
         {
@@ -64,7 +61,6 @@ const [emailText, setEmailText] = useState('');
         }
       );
       setScanResult(response.data);
-
       fetchScanHistory();
     } catch (err) {
       console.error("Error scanning email:", err);
@@ -73,7 +69,6 @@ const [emailText, setEmailText] = useState('');
       } else if (err.request) {
         setError('No response from API. Is the backend running?');
       } else {
-        
         setError('Error setting up the request.');
       }
     } finally {
@@ -113,7 +108,7 @@ const [emailText, setEmailText] = useState('');
           <section className="result-section card">
             <h2>Scan Result:</h2>
             <p><strong>Classification:</strong> <span className={`classification-${scanResult.classification}`}>
-                {scanResult.classification}
+              {scanResult.classification}
             </span></p>
             <p><strong>Confidence:</strong> {(scanResult.confidence * 100).toFixed(2)}%</p>
             <p><strong>Explanation:</strong> {scanResult.explanation}</p>
@@ -131,13 +126,11 @@ const [emailText, setEmailText] = useState('');
           {loadingHistory && <p>Loading history...</p>}
 
           <div className="history-list">
-            {/* Map over scanHistory to display each entry */}
             {scanHistory.map((entry, index) => (
               <div key={index} className="history-item">
                 <p><strong>Type:</strong> <span className={`classification-${entry.classification}`}>{entry.classification}</span></p>
                 <p><strong>Confidence:</strong> {(entry.confidence * 100).toFixed(2)}%</p>
-                {/* Use 'input' from backend, shorten it, or create 'text_snippet' in backend */}
-                <p><strong>Snippet:</strong> {entry.input ? entry.input.substring(0, 100) + (entry.input.length > 100 ? '...' : '') : 'N/A'}</p>
+                <p><strong>Snippet:</strong> {entry.email_preview}</p>
                 <p className="timestamp">{entry.timestamp ? new Date(entry.timestamp).toLocaleString() : 'N/A'}</p>
               </div>
             ))}
