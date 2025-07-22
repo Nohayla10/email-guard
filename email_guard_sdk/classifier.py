@@ -8,7 +8,7 @@ import string
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer # Make sure this is imported
-
+from datetime import datetime
 import warnings
 import importlib.resources as pkg_resources
 
@@ -76,7 +76,8 @@ class EmailGuardAI:
             return {
                 "classification": "invalid_input",
                 "confidence": 0.0,
-                "explanation": "Input must be a non-empty string."
+                "explanation": "Input must be a non-empty string.",
+                "timestamp": datetime.now().isoformat()
             }
 
         prediction_proba = self._model.predict_proba([email_text])[0]
@@ -89,7 +90,8 @@ class EmailGuardAI:
         return {
             "classification": predicted_class,
             "confidence": round(float(confidence), 4),
-            "explanation": explanation
+            "explanation": explanation,
+            "timestamp": datetime.now().isoformat()
         }
 
     def _generate_explanation(self, email_text, classification, confidence):
