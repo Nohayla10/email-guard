@@ -1,6 +1,6 @@
 # backend/Dockerfile
 # Use a lightweight Python 3.10 image based on Debian Buster for consistency and compatibility
-FROM python:3.10-slim-buster
+FROM python:3.10-slim-bullseye
 
 # Set the working directory inside the container
 WORKDIR /app
