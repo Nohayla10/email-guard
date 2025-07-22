@@ -1,4 +1,4 @@
-
+# email_guard_sdk/classifier.py
 import joblib
 import os
 import sys
@@ -7,8 +7,12 @@ import re
 import string
 import nltk
 from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
+from nltk.stem import WordNetLemmatizer # Make sure this is imported
 
+import warnings
+import importlib.resources as pkg_resources
+
+warnings.filterwarnings("ignore", category=UserWarning, module='nltk')
 
 try:
     nltk.data.find('corpora/stopwords')
@@ -20,8 +24,7 @@ except LookupError:
     nltk.download('wordnet', quiet=True)
 
 stop_words = set(stopwords.words('english'))
-lemmatizer = WordNetLemmatizer()
-
+lemmatizer = WordNetLemmatizer() # This is your lemmatizer object
 
 def preprocess_text(text):
     if not isinstance(text, str):
@@ -30,22 +33,43 @@ def preprocess_text(text):
     text = re.sub(f"[{re.escape(string.punctuation)}]", "", text)
     text = re.sub(r'\d+', '', text)
     tokens = text.split()
-    tokens = [lemmatizer.lemmatize(word) for word in tokens if word not in stop_words]
+    # --- FIX IS HERE ---
+    tokens = [lemmatizer.lemmatize(word) for word in tokens if word not in stop_words] # Call the method on the object
+    # --- END FIX ---
     return " ".join(tokens)
 
 class EmailGuardAI:
-    def __init__(self, model_path: str):
-        
-        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-        abs_model_path = os.path.join(project_root, model_path) # Changed this line to be explicit
+    _instance = None
+    _model = None
 
-        if not os.path.exists(abs_model_path):
-            raise FileNotFoundError(f"Model file not found at {abs_model_path}. Please train and save the model first using ai/email_guard_model.py.")
-        
-        
-        # module's path matches.
-        self.model = joblib.load(abs_model_path)
-        self.classes = self.model.classes_
+    def __new__(cls, model_path=None):
+        if cls._instance is None:
+            cls._instance = super(EmailGuardAI, cls).__new__(cls)
+            cls._instance._load_model(model_path)
+        return cls._instance
+
+    def _load_model(self, model_path_override=None):
+        docker_model_path = "/app/email_guard_sdk/model/email_guard_model.joblib"
+
+        if model_path_override:
+            abs_model_path = os.path.abspath(model_path_override)
+            if not os.path.exists(abs_model_path):
+                raise FileNotFoundError(f"Model file not found at {abs_model_path}.")
+            self._model = joblib.load(abs_model_path)
+            print(f"EmailGuardAI model loaded successfully from override path: {abs_model_path}.")
+        elif os.path.exists(docker_model_path):
+            self._model = joblib.load(docker_model_path)
+            print(f"EmailGuardAI model loaded successfully from Docker path: {docker_model_path}.")
+        else:
+            try:
+                with pkg_resources.path('email_guard_sdk.model', 'email_guard_model.joblib') as p:
+                    self._model = joblib.load(p)
+                print("EmailGuardAI model loaded successfully from SDK package resources.")
+            except Exception as e:
+                raise FileNotFoundError(f"Failed to load model from SDK package or Docker path: {e}. Ensure 'email_guard_sdk/model/email_guard_model.joblib' exists within the installed package or at {docker_model_path}.")
+
+        self.classes = self._model.classes_
+
 
     def classify_email(self, email_text: str):
         if not isinstance(email_text, str) or not email_text.strip():
@@ -55,8 +79,7 @@ class EmailGuardAI:
                 "explanation": "Input must be a non-empty string."
             }
 
-        # The pipeline handles preprocessing internally via TfidfVectorizer(preprocessor=preprocess_text)
-        prediction_proba = self.model.predict_proba([email_text])[0]
+        prediction_proba = self._model.predict_proba([email_text])[0]
         predicted_class_idx = np.argmax(prediction_proba)
         predicted_class = self.classes[predicted_class_idx]
         confidence = prediction_proba[predicted_class_idx]
@@ -95,4 +118,3 @@ class EmailGuardAI:
              base_explanation += f" (Confidence: {confidence*100:.2f}% is low, the classification might be uncertain.)"
 
         return base_explanation
-

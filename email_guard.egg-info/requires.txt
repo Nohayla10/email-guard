@@ -1,7 +1,0 @@
-flask==2.3.2
-flask-limiter==2.8.1
-transformers==4.30.0
-gunicorn==20.1.0
-
-[:platform_system != "Windows"]
-torch==2.3.1

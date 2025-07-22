@@ -14,7 +14,6 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
-
 print("Checking NLTK resources...")
 download_needed = False
 try:
@@ -39,22 +38,19 @@ if download_needed:
         print("Please try running 'python -c \"import nltk; nltk.download(\'stopwords\'); nltk.download(\'wordnet\')\"' manually.")
         sys.exit(1)
 
-
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from ai.email_guard import preprocess_text # <--- IMPORTANT: Use the one from ai/email_guard.py
+from email_guard_sdk.classifier import preprocess_text
 
-# --- Main Model Training Function ---
 def train_and_save_model():
-    data_path_email_spam = 'data/spam.csv' # Your original email spam dataset
-    data_path_phishing = 'data/phishing_email_dataset.csv' # Your phishing dataset
-    data_path_sms_spam = 'data/SMSSpamCollection' # NEW: SMS Spam dataset
+    data_path_email_spam = 'data/spam.csv'
+    data_path_phishing = 'data/phishing_email_dataset.csv'
+    data_path_sms_spam = 'data/SMSSpamCollection'
 
     combined_dfs = []
 
-    # --- Load Original Email Spam Dataset (spam.csv) ---
     df_email_spam = pd.DataFrame()
     if os.path.exists(data_path_email_spam):
         print(f"Loading email spam dataset from {data_path_email_spam}...")
@@ -73,7 +69,6 @@ def train_and_save_model():
     else:
         print(f"Email spam dataset not found at {data_path_email_spam}.")
 
-    # --- Load Phishing Email Dataset (phishing_email_dataset.csv) ---
     df_phishing = pd.DataFrame()
     if os.path.exists(data_path_phishing):
         print(f"Loading phishing dataset from {data_path_phishing}...")
@@ -96,7 +91,6 @@ def train_and_save_model():
     else:
         print(f"Phishing dataset not found at {data_path_phishing}.")
 
-    # --- NEW: Load SMS Spam Collection (SMSSpamCollection) ---
     df_sms_spam = pd.DataFrame()
     if os.path.exists(data_path_sms_spam):
         print(f"Loading SMS spam dataset from {data_path_sms_spam}...")
@@ -113,8 +107,6 @@ def train_and_save_model():
     else:
         print(f"SMS spam dataset not found at {data_path_sms_spam}.")
 
-
-    # --- Combine All Datasets ---
     if combined_dfs:
         df = pd.concat(combined_dfs, ignore_index=True)
         initial_len = len(df)
@@ -125,16 +117,16 @@ def train_and_save_model():
     else:
         print("No external datasets loaded. Using dummy data for training.")
         texts = [
-            "Hello, your order has been shipped. Track it here: example.com/track123", # Legit
-            "You won a million dollars! Click here to claim: tinyurl.com/freecash", # Spam
-            "Urgent: Verify your bank account details or it will be suspended. Login at: fakebank.com/login", # Phishing
-            "Meeting reminder for tomorrow at 10 AM. Agenda attached.", # Legit
-            "Your Netflix account is on hold. Update payment info now: netflix-support.info/update", # Phishing
-            "Exclusive offer: Get rich quick! Visit: scam-site.net", # Spam
-            "Regarding your recent query, we have updated your ticket.", # Legit
-            "Dear customer, you have received a new message from HMRC. Follow the link to view: hmrc-online.co.uk", # Phishing
-            "Congratulations, you've been selected for a free gift card. Click here!", # Spam
-            "Project status update: all tasks are proceeding as planned." # Legit
+            "Hello, your order has been shipped. Track it here: example.com/track123",
+            "You won a million dollars! Click here to claim: tinyurl.com/freecash",
+            "Urgent: Verify your bank account details or it will be suspended. Login at: fakebank.com/login",
+            "Meeting reminder for tomorrow at 10 AM. Agenda attached.",
+            "Your Netflix account is on hold. Update payment info now: netflix-support.info/update",
+            "Exclusive offer: Get rich quick! Visit: scam-site.net",
+            "Regarding your recent query, we have updated your ticket.",
+            "Dear customer, you have received a new message from HMRC. Follow the link to view: hmrc-online.co.uk",
+            "Congratulations, you've been selected for a free gift card. Click here!",
+            "Project status update: all tasks are proceeding as planned."
         ]
         labels = [
             "legit", "spam", "phishing", "legit", "phishing",
@@ -152,7 +144,6 @@ def train_and_save_model():
     texts = df['text'].tolist()
     labels = df['label'].tolist()
 
-    # Split data
     try:
         X_train, X_test, y_train, y_test = train_test_split(texts, labels, test_size=0.2, random_state=42, stratify=labels)
     except ValueError as e:
@@ -160,7 +151,6 @@ def train_and_save_model():
         print("Proceeding without stratification. Consider adjusting test_size or getting more data for minority classes.")
         X_train, X_test, y_train, y_test = train_test_split(texts, labels, test_size=0.2, random_state=42)
 
-    # Create a pipeline
     pipeline = Pipeline([
         ('tfidf', TfidfVectorizer(max_features=5000, preprocessor=preprocess_text)),
         ('classifier', LogisticRegression(max_iter=1000, solver='liblinear', class_weight='balanced'))
@@ -170,7 +160,6 @@ def train_and_save_model():
     pipeline.fit(X_train, y_train)
     print("Model trained.")
 
-    # Evaluate
     print("\nEvaluating model performance on test set:")
     y_pred = pipeline.predict(X_test)
     print("Classification Report:")
@@ -187,14 +176,12 @@ def train_and_save_model():
     print(f"Recall (weighted): {recall:.4f}")
     print(f"F1-Score (weighted): {f1:.4f}")
 
-    # Save the model
-    model_dir = 'ai'
+    model_dir = 'email_guard_sdk/model' # <--- THIS IS THE TARGET DIRECTORY
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)
     model_path = os.path.join(model_dir, 'email_guard_model.joblib')
     joblib.dump(pipeline, model_path)
     print(f"\nModel saved to {model_path}")
 
-# --- Entry point of the script ---
 if __name__ == "__main__":
     train_and_save_model()
